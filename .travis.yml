@@ -1,0 +1,37 @@
+#
+# Copyright (c) 2018 Kris Jusiak (kris at jusiak dot net)
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+#
+git:
+  depth: 1
+
+sudo: false
+
+matrix:
+  fast_finish: true
+  include:
+
+  - os: linux
+    dist: precise
+    env: CXX=clang++-4.0
+    addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev", "gdb"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+
+  - os: linux
+    dist: trusty
+    env: CXX=g++-7
+    addons: { apt: { packages: ["g++-7", "libstdc++-7-dev", "gdb"], sources: ["ubuntu-toolchain-r-test"] } }
+
+  - os: osx
+    osx_image: xcode9.1
+    env: CXX=clang++
+
+script:
+  - cmake -Bbuild/debug -DCMAKE_BUILD_TYPE=Debug -H. && cd build/debug && cmake --build . && ctest --output-on-failure && cd ../..
+  - cmake -Bbuild/release -DCMAKE_BUILD_TYPE=Release -H. && cd build/release && cmake --build . && ctest --output-on-failure && cd ../..
+
+notifications:
+  on_success: change
+  on_failure: always
+  on_start: false
